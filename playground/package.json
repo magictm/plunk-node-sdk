@@ -1,0 +1,18 @@
+{
+  "name": "plunk-sdk-playground",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Local web playground for testing the plunk-node-sdk against the real Plunk API.",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "dependencies": {
+    "express": "^4.21.0",
+    "plunk-node-sdk": "file:.."
+  }
+}

@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Plunk SDK Playground</title>
+    <link rel="stylesheet" href="/style.css" />
+  </head>
+  <body>
+    <header>
+      <h1>Plunk SDK Playground</h1>
+      <p class="sub">
+        Local UI for <code>plunk-node-sdk</code>. Each button calls the SDK
+        server-side. Your API key never leaves the server.
+      </p>
+    </header>
+
+    <main>
+      <aside id="nav"></aside>
+      <section id="ops"></section>
+      <section id="response">
+        <h2>Response</h2>
+        <div class="meta">
+          <span id="status" class="status idle">idle</span>
+          <span id="duration"></span>
+        </div>
+        <pre id="output">// run an operation to see the response here</pre>
+      </section>
+    </main>
+
+    <script type="module" src="/app.js"></script>
+  </body>
+</html>
