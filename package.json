@@ -15,6 +15,8 @@
   "files": [
     "dist",
     "README.md",
+    "CHANGELOG.md",
+    "SECURITY.md",
     "LICENSE"
   ],
   "engines": {
@@ -28,7 +30,15 @@
     "build:tests": "tsc -p tsconfig.test.json",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "test": "pnpm build && pnpm build:tests && node --test \"dist-test/test/**/*.test.js\"",
-    "prepublishOnly": "pnpm clean && pnpm build"
+    "test:only": "node --test \"dist-test/test/**/*.test.js\"",
+    "lint": "tsc -p tsconfig.json --noEmit && tsc -p tsconfig.test.json --noEmit",
+    "prepublishOnly": "pnpm lint && pnpm test",
+    "pack:dry": "pnpm pack --dry-run",
+    "pack:preview": "pnpm pack && node -e \"import('node:child_process').then(({execSync})=>console.log(execSync('tar -tzf plunk-node-sdk-*.tgz').toString()))\" && node -e \"import('node:fs').then(f=>f.readdirSync('.').filter(n=>n.endsWith('.tgz')).forEach(f=>f && import('node:fs').then(g=>g.unlinkSync(f))))\"",
+    "release:patch": "pnpm test && npm version patch && git push --follow-tags",
+    "release:minor": "pnpm test && npm version minor && git push --follow-tags",
+    "release:major": "pnpm test && npm version major && git push --follow-tags",
+    "publish:dry": "pnpm publish --dry-run --access public --no-git-checks"
   },
   "keywords": [
     "plunk",
