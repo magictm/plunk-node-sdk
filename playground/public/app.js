@@ -184,7 +184,12 @@ const MANIFEST = [
         resource: "templates",
         fn: "list",
         args: [
-          { name: "params", label: "params (JSON)", type: "json", default: { limit: 20 } },
+          {
+            name: "params",
+            label: "params (JSON)",
+            type: "json",
+            default: { limit: 20 },
+          },
         ],
       },
       {
@@ -213,7 +218,9 @@ const MANIFEST = [
         method: "GET",
         resource: "templates",
         fn: "get",
-        args: [{ name: "id", label: "template id", type: "string", required: true }],
+        args: [
+          { name: "id", label: "template id", type: "string", required: true },
+        ],
       },
       {
         id: "templates-update",
@@ -238,7 +245,9 @@ const MANIFEST = [
         resource: "templates",
         fn: "delete",
         danger: true,
-        args: [{ name: "id", label: "template id", type: "string", required: true }],
+        args: [
+          { name: "id", label: "template id", type: "string", required: true },
+        ],
       },
     ],
   },
@@ -252,7 +261,12 @@ const MANIFEST = [
         resource: "campaigns",
         fn: "list",
         args: [
-          { name: "params", label: "params (JSON)", type: "json", default: { limit: 20 } },
+          {
+            name: "params",
+            label: "params (JSON)",
+            type: "json",
+            default: { limit: 20 },
+          },
         ],
       },
       {
@@ -281,7 +295,9 @@ const MANIFEST = [
         method: "GET",
         resource: "campaigns",
         fn: "get",
-        args: [{ name: "id", label: "campaign id", type: "string", required: true }],
+        args: [
+          { name: "id", label: "campaign id", type: "string", required: true },
+        ],
       },
       {
         id: "campaigns-update",
@@ -321,7 +337,9 @@ const MANIFEST = [
         method: "POST",
         resource: "campaigns",
         fn: "cancel",
-        args: [{ name: "id", label: "campaign id", type: "string", required: true }],
+        args: [
+          { name: "id", label: "campaign id", type: "string", required: true },
+        ],
       },
       {
         id: "campaigns-test",
@@ -345,7 +363,9 @@ const MANIFEST = [
         method: "GET",
         resource: "campaigns",
         fn: "stats",
-        args: [{ name: "id", label: "campaign id", type: "string", required: true }],
+        args: [
+          { name: "id", label: "campaign id", type: "string", required: true },
+        ],
       },
     ],
   },
@@ -359,7 +379,12 @@ const MANIFEST = [
         resource: "segments",
         fn: "list",
         args: [
-          { name: "params", label: "params (JSON)", type: "json", default: { limit: 20 } },
+          {
+            name: "params",
+            label: "params (JSON)",
+            type: "json",
+            default: { limit: 20 },
+          },
         ],
       },
       {
@@ -383,7 +408,9 @@ const MANIFEST = [
         method: "GET",
         resource: "segments",
         fn: "get",
-        args: [{ name: "id", label: "segment id", type: "string", required: true }],
+        args: [
+          { name: "id", label: "segment id", type: "string", required: true },
+        ],
       },
       {
         id: "segments-update",
@@ -408,7 +435,9 @@ const MANIFEST = [
         resource: "segments",
         fn: "delete",
         danger: true,
-        args: [{ name: "id", label: "segment id", type: "string", required: true }],
+        args: [
+          { name: "id", label: "segment id", type: "string", required: true },
+        ],
       },
       {
         id: "segments-listContacts",
@@ -418,7 +447,12 @@ const MANIFEST = [
         fn: "listContacts",
         args: [
           { name: "id", label: "segment id", type: "string", required: true },
-          { name: "params", label: "params (JSON)", type: "json", default: { limit: 50 } },
+          {
+            name: "params",
+            label: "params (JSON)",
+            type: "json",
+            default: { limit: 50 },
+          },
         ],
       },
       {
@@ -466,7 +500,12 @@ const MANIFEST = [
         resource: "workflows",
         fn: "list",
         args: [
-          { name: "params", label: "params (JSON)", type: "json", default: { limit: 20 } },
+          {
+            name: "params",
+            label: "params (JSON)",
+            type: "json",
+            default: { limit: 20 },
+          },
         ],
       },
       {
@@ -480,7 +519,11 @@ const MANIFEST = [
             name: "params",
             label: "params (JSON)",
             type: "json",
-            default: { name: "Playground workflow", trigger: "signed_up", active: false },
+            default: {
+              name: "Playground workflow",
+              trigger: "signed_up",
+              active: false,
+            },
           },
         ],
       },
@@ -490,7 +533,9 @@ const MANIFEST = [
         method: "GET",
         resource: "workflows",
         fn: "get",
-        args: [{ name: "id", label: "workflow id", type: "string", required: true }],
+        args: [
+          { name: "id", label: "workflow id", type: "string", required: true },
+        ],
       },
       {
         id: "workflows-update",
@@ -515,7 +560,9 @@ const MANIFEST = [
         resource: "workflows",
         fn: "delete",
         danger: true,
-        args: [{ name: "id", label: "workflow id", type: "string", required: true }],
+        args: [
+          { name: "id", label: "workflow id", type: "string", required: true },
+        ],
       },
       {
         id: "workflows-listExecutions",
@@ -525,7 +572,12 @@ const MANIFEST = [
         fn: "listExecutions",
         args: [
           { name: "id", label: "workflow id", type: "string", required: true },
-          { name: "params", label: "params (JSON)", type: "json", default: { limit: 50 } },
+          {
+            name: "params",
+            label: "params (JSON)",
+            type: "json",
+            default: { limit: 50 },
+          },
         ],
       },
     ],
@@ -540,7 +592,12 @@ const MANIFEST = [
         resource: "events",
         fn: "list",
         args: [
-          { name: "params", label: "params (JSON)", type: "json", default: { limit: 50 } },
+          {
+            name: "params",
+            label: "params (JSON)",
+            type: "json",
+            default: { limit: 50 },
+          },
         ],
       },
       {
@@ -586,7 +643,9 @@ const MANIFEST = [
         resource: "domains",
         fn: "delete",
         danger: true,
-        args: [{ name: "id", label: "domain id", type: "string", required: true }],
+        args: [
+          { name: "id", label: "domain id", type: "string", required: true },
+        ],
       },
     ],
   },

@@ -53,7 +53,10 @@ app.post("/api/call", async (req, res) => {
       if (typeof plunk[method] !== "function") {
         return res
           .status(400)
-          .json({ ok: false, error: { code: "UNKNOWN_METHOD", message: method } });
+          .json({
+            ok: false,
+            error: { code: "UNKNOWN_METHOD", message: method },
+          });
       }
       const data = await plunk[method](...args);
       return res.json({ ok: true, data });
