@@ -1,0 +1,55 @@
+{
+  "name": "plunk-node-sdk",
+  "version": "0.1.0",
+  "description": "Zero-dependency Node.js (>=18) SDK for the Plunk API.",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=18.0.0",
+    "pnpm": ">=8"
+  },
+  "packageManager": "pnpm@9.15.0",
+  "scripts": {
+    "clean": "node -e \"import('node:fs').then(f=>f.rmSync('dist',{recursive:true,force:true})).then(()=>import('node:fs').then(f=>f.rmSync('dist-test',{recursive:true,force:true})))\"",
+    "build": "tsc -p tsconfig.json",
+    "build:tests": "tsc -p tsconfig.test.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "pnpm build && pnpm build:tests && node --test \"dist-test/test/**/*.test.js\"",
+    "prepublishOnly": "pnpm clean && pnpm build"
+  },
+  "keywords": [
+    "plunk",
+    "email",
+    "transactional",
+    "sdk",
+    "useplunk",
+    "marketing",
+    "esm"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/useplunk/plunk-node-sdk.git"
+  },
+  "homepage": "https://docs.useplunk.com/api-reference/overview",
+  "bugs": {
+    "url": "https://github.com/useplunk/plunk-node-sdk/issues"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "typescript": "^5.6.0"
+  }
+}
