@@ -1,6 +1,6 @@
 {
   "name": "plunk-node-sdk",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "Zero-dependency Node.js (>=18) SDK for the Plunk API.",
   "type": "module",
   "main": "./dist/index.js",
@@ -52,11 +52,11 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/useplunk/plunk-node-sdk.git"
+    "url": "https://github.com/magictm/plunk-node-sdk.git"
   },
-  "homepage": "https://docs.useplunk.com/api-reference/overview",
+  "homepage": "https://magictm.com",
   "bugs": {
-    "url": "https://github.com/useplunk/plunk-node-sdk/issues"
+    "url": "https://github.com/magictm/plunk-node-sdk/issues"
   },
   "devDependencies": {
     "@types/node": "^24.0.0",
