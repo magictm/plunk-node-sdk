@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.1.0] - 2026-04-30
 
 ### Added
+
 - Initial release.
 - Zero-dependency ESM SDK for the Plunk API (Node.js ≥ 18).
 - `Plunk` client with resource groups: `public`, `contacts`, `templates`,
