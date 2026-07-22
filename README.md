@@ -35,13 +35,19 @@ await plunk.send({
 
 ## Authentication
 
-Pass either a string or an options object:
+Plunk uses a **two-key model**:
+
+- **Secret key** (`sk_*`) — every endpoint except track: `send`, `verify`, contacts, campaigns, templates, segments, workflows, domains.
+- **Public key** (`pk_*`) — **only** `plunk.track(...)` (`POST /v1/track`). Calling `track` with a secret key is rejected by the API.
+
+Pass a bare string (treated as the secret key) or an options object:
 
 ```ts
 new Plunk("sk_your_secret_key");
 
 new Plunk({
-  apiKey: "sk_your_secret_key",
+  secretKey: "sk_your_secret_key",
+  publicKey: "pk_your_public_key", // required to call plunk.track(...)
   baseUrl: "https://next-api.useplunk.com", // override (e.g. self-hosted)
   timeoutMs: 30_000,
   maxRetries: 2,
@@ -50,8 +56,14 @@ new Plunk({
 });
 ```
 
-- `sk_*` keys work for every endpoint.
-- `pk_*` public keys work only with `plunk.track(...)` (`/v1/track`).
+At least one of `secretKey` / `publicKey` is required. Calling a method whose key
+isn't configured throws a `PlunkError` (`MISSING_SECRET_KEY` or
+`MISSING_PUBLIC_KEY`) **before** any network request — so `plunk.track(...)`
+without a `publicKey` fails fast with a clear message instead of a `401`.
+
+> **Breaking change (v0.3.0):** the options field `apiKey` was renamed to
+> `secretKey`, and `publicKey` was added. Migrate `{ apiKey: "sk_…" }` →
+> `{ secretKey: "sk_…" }`. The bare-string form `new Plunk("sk_…")` is unchanged.
 
 ## Public API
 
@@ -175,7 +187,7 @@ try {
 }
 ```
 
-Synthetic codes used for client-side failures: `TIMEOUT`, `NETWORK_ERROR`, `INVALID_RESPONSE`.
+Synthetic codes used for client-side failures: `TIMEOUT`, `NETWORK_ERROR`, `INVALID_RESPONSE`, `MISSING_SECRET_KEY`, `MISSING_PUBLIC_KEY`.
 
 ## Timeouts & cancellation
 
@@ -196,7 +208,7 @@ Transient failures (`429`, `5xx`, network errors, timeouts) are retried up to
 `Retry-After` header is honored when present.
 
 ```ts
-new Plunk({ apiKey: "sk_…", maxRetries: 0 }); // disable
+new Plunk({ secretKey: "sk_…", maxRetries: 0 }); // disable
 ```
 
 ## Idempotency
@@ -216,7 +228,7 @@ Inject your own `fetch` (e.g. for proxies, tracing, mocking in tests):
 import { Plunk } from "plunk-node-sdk";
 
 const plunk = new Plunk({
-  apiKey: "sk_…",
+  secretKey: "sk_…",
   fetch: async (url, init) => {
     console.log("→", init?.method ?? "GET", url);
     return fetch(url, init);

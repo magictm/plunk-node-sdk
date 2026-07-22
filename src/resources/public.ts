@@ -118,7 +118,10 @@ export class PublicResource {
 
   /**
    * Track a custom event for a contact (creates or updates the contact).
-   * Works with both secret (`sk_*`) and public (`pk_*`) keys.
+   *
+   * Requires the **public** key (`pk_*`) — the Plunk API rejects `/v1/track`
+   * calls made with a secret key. Pass `publicKey` to the `Plunk` constructor;
+   * otherwise this throws a `PlunkError` with code `MISSING_PUBLIC_KEY`.
    *
    * @see https://docs.useplunk.com/api-reference/public-api/trackEvent
    */
@@ -130,6 +133,7 @@ export class PublicResource {
       method: "POST",
       path: "/v1/track",
       body: params,
+      auth: "public",
       options,
     });
   }

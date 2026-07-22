@@ -1,12 +1,13 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
-import { Plunk } from "../src/index.js";
+import { Plunk, PlunkError } from "../src/index.js";
 import { createFakeFetch, ok } from "./helpers.js";
 
 function client(responses: Parameters<typeof createFakeFetch>[0]) {
   const fake = createFakeFetch(responses);
   const plunk = new Plunk({
-    apiKey: "sk_test",
+    secretKey: "sk_test",
+    publicKey: "pk_test",
     fetch: fake.fetch,
     maxRetries: 0,
   });
@@ -214,12 +215,67 @@ describe("Plunk client construction", () => {
   it("supports baseUrl override", async () => {
     const fake = createFakeFetch([{ status: 200, body: ok({ ok: true }) }]);
     const p = new Plunk({
-      apiKey: "sk_test",
+      secretKey: "sk_test",
       fetch: fake.fetch,
       baseUrl: "https://example.test/api/",
       maxRetries: 0,
     });
     await p.events.names();
     assert.ok(fake.requests[0]!.url.startsWith("https://example.test/api/"));
+  });
+});
+
+describe("Two-key auth routing", () => {
+  it("send uses the secret key, track uses the public key", async () => {
+    const fake = createFakeFetch([
+      { status: 200, body: ok({ success: true, emails: [], timestamp: "t" }) },
+      { status: 200, body: ok({ contact: "c", event: "e", timestamp: "t" }) },
+    ]);
+    const plunk = new Plunk({
+      secretKey: "sk_live",
+      publicKey: "pk_live",
+      fetch: fake.fetch,
+      maxRetries: 0,
+    });
+    await plunk.send({ to: "a@b.com", subject: "Hi", body: "<p>x</p>" });
+    await plunk.track({ event: "signed_up", email: "a@b.com" });
+    assert.equal(fake.requests[0]!.headers["Authorization"], "Bearer sk_live");
+    assert.ok(fake.requests[0]!.url.endsWith("/v1/send"));
+    assert.equal(fake.requests[1]!.headers["Authorization"], "Bearer pk_live");
+    assert.ok(fake.requests[1]!.url.endsWith("/v1/track"));
+  });
+
+  it("track without a public key throws MISSING_PUBLIC_KEY and never calls fetch", async () => {
+    const fake = createFakeFetch([{ status: 200, body: ok({}) }]);
+    const plunk = new Plunk({
+      secretKey: "sk_live",
+      fetch: fake.fetch,
+      maxRetries: 0,
+    });
+    await assert.rejects(
+      () => plunk.track({ event: "e", email: "a@b.com" }),
+      (err: unknown) =>
+        err instanceof PlunkError && err.code === "MISSING_PUBLIC_KEY",
+    );
+    assert.equal(fake.calls(), 0);
+  });
+
+  it("public-key-only client: secret endpoints throw, track works", async () => {
+    const fake = createFakeFetch([
+      { status: 200, body: ok({ contact: "c", event: "e", timestamp: "t" }) },
+    ]);
+    const plunk = new Plunk({
+      publicKey: "pk_live",
+      fetch: fake.fetch,
+      maxRetries: 0,
+    });
+    await assert.rejects(
+      () => plunk.contacts.list(),
+      (err: unknown) =>
+        err instanceof PlunkError && err.code === "MISSING_SECRET_KEY",
+    );
+    const res = await plunk.track({ event: "signed_up", email: "a@b.com" });
+    assert.equal(res.event, "e");
+    assert.equal(fake.requests[0]!.headers["Authorization"], "Bearer pk_live");
   });
 });

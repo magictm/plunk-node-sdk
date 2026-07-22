@@ -26,6 +26,16 @@ import type { RequestOptions } from "./types.js";
  * const plunk = new Plunk(process.env.PLUNK_SECRET_KEY!);
  * await plunk.send({ to: "user@example.com", subject: "Hi", body: "<p>Hello</p>" });
  * ```
+ *
+ * A bare string is treated as the secret key (`sk_*`). To also track events
+ * (`/v1/track`, which requires a public `pk_*` key), pass both:
+ *
+ * ```ts
+ * const plunk = new Plunk({
+ *   secretKey: process.env.PLUNK_SECRET_KEY!,
+ *   publicKey: process.env.PLUNK_PUBLIC_KEY!,
+ * });
+ * ```
  */
 export class Plunk {
   /** Public API endpoints — `/v1/send`, `/v1/track`, `/v1/verify`. */
@@ -40,11 +50,11 @@ export class Plunk {
   /** Underlying HTTP client. Use for advanced/custom requests. */
   readonly http: HttpClient;
 
-  constructor(apiKeyOrOptions: string | HttpClientOptions) {
+  constructor(secretKeyOrOptions: string | HttpClientOptions) {
     const options: HttpClientOptions =
-      typeof apiKeyOrOptions === "string"
-        ? { apiKey: apiKeyOrOptions }
-        : apiKeyOrOptions;
+      typeof secretKeyOrOptions === "string"
+        ? { secretKey: secretKeyOrOptions }
+        : secretKeyOrOptions;
     this.http = new HttpClient(options);
     this.public = new PublicResource(this.http);
     this.contacts = new ContactsResource(this.http);

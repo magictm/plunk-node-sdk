@@ -48,15 +48,15 @@ Tests never hit the network: they inject a fake `fetch` via `createFakeFetch` in
 
 Three layers, all under `src/`:
 
-- **`Plunk`** ([src/client.ts](src/client.ts)) — the public entrypoint. Accepts a `string` API key or an `HttpClientOptions` object, constructs one `HttpClient`, and hangs a resource instance off each property (`plunk.contacts`, `plunk.campaigns`, …). `send`/`track`/`verify` are convenience shortcuts to `plunk.public`.
-- **`HttpClient`** ([src/http.ts](src/http.ts)) — the only code that touches `fetch`. All request semantics live here: auth header, URL building, retry/backoff, timeout + abort composition, and **response-envelope unwrapping**. `request<T>()` returns the inner `data` of the API's `{ success, data }` envelope (or the raw body if no envelope) — resources never see the wrapper. `paginate<T>()` is an async generator that walks `nextCursor`/`hasMore`.
+- **`Plunk`** ([src/client.ts](src/client.ts)) — the public entrypoint. Accepts a `string` secret key or an `HttpClientOptions` object (`{ secretKey?, publicKey? }`, at least one required), constructs one `HttpClient`, and hangs a resource instance off each property (`plunk.contacts`, `plunk.campaigns`, …). `send`/`track`/`verify` are convenience shortcuts to `plunk.public`.
+- **`HttpClient`** ([src/http.ts](src/http.ts)) — the only code that touches `fetch`. All request semantics live here: auth header, URL building, retry/backoff, timeout + abort composition, and **response-envelope unwrapping**. Holds both `secretKey` and `publicKey`; each `request()` picks one via `init.auth` (`"secret"` default, `"public"` for `/v1/track`) and throws `MISSING_SECRET_KEY`/`MISSING_PUBLIC_KEY` if that key wasn't configured. `request<T>()` returns the inner `data` of the API's `{ success, data }` envelope (or the raw body if no envelope) — resources never see the wrapper. `paginate<T>()` is an async generator that walks `nextCursor`/`hasMore`.
 - **Resources** ([src/resources/](src/resources/)) — one class per API area (contacts, templates, campaigns, segments, workflows, events, domains, public). They are thin: each method just describes an HTTP call (`method`, `path`, `query`, `body`) and delegates to `this.#http.request(...)`. No business logic, no fetch, no error handling here.
 
 Supporting modules: [src/types.ts](src/types.ts) (shared `ApiSuccess`/`ApiError` envelopes, `ListParams`, `Paginated`, `RequestOptions`, `FetchLike`) and [src/errors.ts](src/errors.ts) (`PlunkError`).
 
 ### Error model
 
-Every non-success response and every client-side failure throws `PlunkError` (never a raw `fetch` rejection). `parseError` in `http.ts` maps the API's `{ error: {...} }` shape onto it; client-side failures use synthetic codes `TIMEOUT`, `NETWORK_ERROR`, `INVALID_RESPONSE`, or `HTTP_<status>`. `isRetryable` (429 or ≥500) drives the retry loop. User-initiated aborts (`opt.signal` fired) are never retried; timeout aborts are.
+Every non-success response and every client-side failure throws `PlunkError` (never a raw `fetch` rejection). `parseError` in `http.ts` maps the API's `{ error: {...} }` shape onto it; client-side failures use synthetic codes `TIMEOUT`, `NETWORK_ERROR`, `INVALID_RESPONSE`, `MISSING_SECRET_KEY`, `MISSING_PUBLIC_KEY`, or `HTTP_<status>`. `isRetryable` (429 or ≥500) drives the retry loop. User-initiated aborts (`opt.signal` fired) are never retried; timeout aborts are.
 
 ### Pagination convention
 

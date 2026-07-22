@@ -18,16 +18,20 @@ if (fs.existsSync(envPath)) {
   }
 }
 
-const apiKey = process.env.PLUNK_SECRET_KEY;
-if (!apiKey || apiKey === "sk_replace_me") {
+const secretKey = process.env.PLUNK_SECRET_KEY;
+if (!secretKey || secretKey === "sk_replace_me") {
   console.error(
     "[playground] Missing PLUNK_SECRET_KEY. Copy .env.example to .env and set your key.",
   );
   process.exit(1);
 }
 
+const publicKey = process.env.PLUNK_PUBLIC_KEY;
+
 const plunk = new Plunk({
-  apiKey,
+  secretKey,
+  // Optional — required only for plunk.track(...) (/v1/track).
+  publicKey: publicKey && publicKey !== "pk_replace_me" ? publicKey : undefined,
   baseUrl: process.env.PLUNK_BASE_URL,
   userAgent: "plunk-sdk-playground",
 });

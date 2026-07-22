@@ -11,12 +11,20 @@ import type {
 const DEFAULT_BASE_URL = "https://next-api.useplunk.com";
 const DEFAULT_TIMEOUT_MS = 30_000;
 const DEFAULT_MAX_RETRIES = 2;
-const DEFAULT_USER_AGENT = "plunk-node-sdk/0.1.0";
+const DEFAULT_USER_AGENT = "plunk-node-sdk/0.3.0";
 
 /** Configuration accepted by {@link HttpClient} (and the public `Plunk` class). */
 export interface HttpClientOptions {
-  /** Plunk API key (`sk_*` for most endpoints, `pk_*` for `/v1/track`). */
-  apiKey: string;
+  /**
+   * Secret API key (`sk_*`). Used for every endpoint except `/v1/track`
+   * (send, verify, contacts, campaigns, templates, segments, workflows, domains).
+   */
+  secretKey?: string;
+  /**
+   * Public API key (`pk_*`). Used only for `plunk.track(...)` (`POST /v1/track`),
+   * which the Plunk API rejects when called with a secret key.
+   */
+  publicKey?: string;
   /** Override the API base URL (e.g. for self-hosted Plunk). */
   baseUrl?: string;
   /** Inject a custom fetch implementation (defaults to `globalThis.fetch`). */
@@ -35,11 +43,17 @@ interface InternalRequestInit {
   query?: Record<string, string | number | boolean | undefined | null>;
   body?: unknown;
   options?: RequestOptions;
+  /**
+   * Which key to authenticate with. `"secret"` (default) for every endpoint
+   * except `/v1/track`, which requires `"public"`.
+   */
+  auth?: "secret" | "public";
 }
 
 /** Internal HTTP client. Consumers should use the high-level `Plunk` class. */
 export class HttpClient {
-  readonly #apiKey: string;
+  readonly #secretKey?: string;
+  readonly #publicKey?: string;
   readonly #baseUrl: string;
   readonly #fetch: FetchLike;
   readonly #timeoutMs: number;
@@ -47,10 +61,19 @@ export class HttpClient {
   readonly #userAgent: string;
 
   constructor(options: HttpClientOptions) {
-    if (!options.apiKey || typeof options.apiKey !== "string") {
-      throw new TypeError("Plunk: `apiKey` is required.");
+    if (options.secretKey !== undefined && typeof options.secretKey !== "string") {
+      throw new TypeError("Plunk: `secretKey` must be a string.");
     }
-    this.#apiKey = options.apiKey;
+    if (options.publicKey !== undefined && typeof options.publicKey !== "string") {
+      throw new TypeError("Plunk: `publicKey` must be a string.");
+    }
+    if (!options.secretKey && !options.publicKey) {
+      throw new TypeError(
+        "Plunk: at least one of `secretKey` or `publicKey` is required.",
+      );
+    }
+    this.#secretKey = options.secretKey || undefined;
+    this.#publicKey = options.publicKey || undefined;
     this.#baseUrl = (options.baseUrl ?? DEFAULT_BASE_URL).replace(/\/+$/, "");
     const fetchImpl = options.fetch ?? globalThis.fetch;
     if (typeof fetchImpl !== "function") {
@@ -69,9 +92,20 @@ export class HttpClient {
    * Throws {@link PlunkError} on any non-success response.
    */
   async request<T>(init: InternalRequestInit): Promise<T> {
+    const usePublic = init.auth === "public";
+    const key = usePublic ? this.#publicKey : this.#secretKey;
+    if (!key) {
+      throw new PlunkError({
+        code: usePublic ? "MISSING_PUBLIC_KEY" : "MISSING_SECRET_KEY",
+        message: usePublic
+          ? "plunk.track() requires a public key (pk_*). Pass `publicKey` to the Plunk constructor."
+          : "This request requires a secret key (sk_*). Pass `secretKey` to the Plunk constructor.",
+        statusCode: 0,
+      });
+    }
     const url = this.#buildUrl(init.path, init.query);
     const headers: Record<string, string> = {
-      Authorization: `Bearer ${this.#apiKey}`,
+      Authorization: `Bearer ${key}`,
       Accept: "application/json",
       "User-Agent": this.#userAgent,
     };

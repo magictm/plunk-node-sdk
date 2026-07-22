@@ -8,7 +8,7 @@ describe("HttpClient", () => {
   it("sends Authorization, User-Agent and JSON body", async () => {
     const fake = createFakeFetch([{ status: 200, body: ok({ id: "x" }) }]);
     const http = new HttpClient({
-      apiKey: "sk_test",
+      secretKey: "sk_test",
       fetch: fake.fetch,
       maxRetries: 0,
     });
@@ -35,7 +35,7 @@ describe("HttpClient", () => {
       },
     ]);
     const http = new HttpClient({
-      apiKey: "sk_test",
+      secretKey: "sk_test",
       fetch: fake.fetch,
       maxRetries: 0,
     });
@@ -67,7 +67,7 @@ describe("HttpClient", () => {
       },
     ]);
     const http = new HttpClient({
-      apiKey: "sk_test",
+      secretKey: "sk_test",
       fetch: fake.fetch,
       maxRetries: 0,
     });
@@ -101,7 +101,7 @@ describe("HttpClient", () => {
       { status: 200, body: ok({ ok: true }) },
     ]);
     const http = new HttpClient({
-      apiKey: "sk_test",
+      secretKey: "sk_test",
       fetch: fake.fetch,
       maxRetries: 2,
     });
@@ -131,7 +131,7 @@ describe("HttpClient", () => {
       },
     ]);
     const http = new HttpClient({
-      apiKey: "sk_test",
+      secretKey: "sk_test",
       fetch: fake.fetch,
       maxRetries: 1,
     });
@@ -153,7 +153,7 @@ describe("HttpClient", () => {
       },
     ]);
     const http = new HttpClient({
-      apiKey: "sk_test",
+      secretKey: "sk_test",
       fetch: fake.fetch,
       maxRetries: 3,
     });
@@ -166,7 +166,7 @@ describe("HttpClient", () => {
   it("aborts when user signal is already aborted", async () => {
     const fake = createFakeFetch([{ status: 200, body: ok({}) }]);
     const http = new HttpClient({
-      apiKey: "sk_test",
+      secretKey: "sk_test",
       fetch: fake.fetch,
       maxRetries: 0,
     });
@@ -184,7 +184,7 @@ describe("HttpClient", () => {
   it("times out a slow request", async () => {
     const fake = createFakeFetch([{ status: 200, body: ok({}), delayMs: 200 }]);
     const http = new HttpClient({
-      apiKey: "sk_test",
+      secretKey: "sk_test",
       fetch: fake.fetch,
       maxRetries: 0,
     });
@@ -219,7 +219,7 @@ describe("HttpClient", () => {
       },
     ]);
     const http = new HttpClient({
-      apiKey: "sk_test",
+      secretKey: "sk_test",
       fetch: fake.fetch,
       maxRetries: 0,
     });
@@ -235,7 +235,8 @@ describe("HttpClient", () => {
     assert.equal(second.searchParams.get("cursor"), "abc");
   });
 
-  it("rejects missing apiKey", () => {
-    assert.throws(() => new HttpClient({ apiKey: "" }), TypeError);
+  it("rejects when no key is provided", () => {
+    assert.throws(() => new HttpClient({}), TypeError);
+    assert.throws(() => new HttpClient({ secretKey: "" }), TypeError);
   });
 });
